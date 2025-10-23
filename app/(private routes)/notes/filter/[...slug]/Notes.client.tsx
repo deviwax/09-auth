@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { fetchNotes, NotesResponse } from '@/lib/api';
+import { fetchNotes, NotesResponse } from '@/lib/api/api';
 import { useEffect, useState } from 'react';
 import NoteList from '@/components/NoteList/NoteList';
 import SearchBox from '@/components/SearchBox/SearchBox';

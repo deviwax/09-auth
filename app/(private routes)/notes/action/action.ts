@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createNote } from '@/lib/api';
+import { createNote } from '@/lib/api/api';
 
 export async function createNoteAction(formData: FormData) {
   const data = {
