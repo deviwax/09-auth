@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api } from '../../app/api/api';
 
 export const fetchNotes = async (params?: { search?: string; page?: number; tag?: string }) => {
   const { data } = await api.get('/api/v1/notes', { params: { ...params, perPage: 12 } });
