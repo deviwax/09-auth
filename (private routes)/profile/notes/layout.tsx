@@ -1,4 +1,4 @@
-import SidebarNotes from '../../../app/(private routes)/profile/notes/filter/@sidebar/SidebarNotes';
+import SidebarNotes from '../../../app/(private routes)/notes/filter/@sidebar/SidebarNotes';
 import css from '@/components/LayoutNotes/LayoutNotes.module.css';
 
 export default function FilterLayout({

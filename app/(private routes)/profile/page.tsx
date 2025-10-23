@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getMe } from '@/app/api/clientApi';
+import { getMe } from '@/lib/api/clientApi';
 import css from './ProfilePage.module.css';
 
 export default function ProfilePage() {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { login } from '@/app/api/clientApi';
+import { login } from '@/lib/api/clientApi';
 import { useRouter } from 'next/navigation';
 import css from './SignInPage.module.css';
 

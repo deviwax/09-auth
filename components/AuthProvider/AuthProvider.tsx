@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { checkSession } from '@/app/api/clientApi';
+import { checkSession } from '@/lib/api/clientApi';
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const setUser = useAuthStore((state) => state.setUser);
