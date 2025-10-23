@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getMe, updateMe } from '@/lib/api/clientApi';
+import { getMe, updateMe } from '@/app/api/clientApi';
 import css from './EditProfilePage.module.css';
 
 export default function EditProfilePage() {
