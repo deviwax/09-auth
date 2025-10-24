@@ -1,50 +1,51 @@
-import { api } from '../../app/api/api';
+import axios from 'axios';
+import type { Note } from '@/types/note';
+import type { User } from '@/types/user';
 
-export const fetchNotes = async (params?: { search?: string; page?: number; tag?: string }) => {
-  const { data } = await api.get('/api/v1/notes', { params: { ...params, perPage: 12 } });
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export interface NotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
+export async function updateMe(userData: { username: string }): Promise<User> {
+  const { data } = await axios.patch(`${BASE_URL}/users/me`, userData);
   return data;
-};
+}
 
-export const fetchNoteById = async (id: string) => {
-  const { data } = await api.get(`/api/v1/notes/${id}`);
+export async function login(email: string, password: string): Promise<User> {
+  const { data } = await axios.post(`${BASE_URL}/auth/login`, { email, password });
   return data;
-};
+}
 
-export const createNote = async (note: { title: string; content: string; tag: string }) => {
-  const { data } = await api.post('/api/v1/notes', note);
+export async function register(email: string, password: string): Promise<User> {
+  const { data } = await axios.post(`${BASE_URL}/auth/register`, { email, password });
   return data;
-};
+}
 
-export const deleteNote = async (id: string) => {
-  const { data } = await api.delete(`/api/v1/notes/${id}`);
+export async function fetchNotes(params: { page: number; search: string; tag: string }): Promise<NotesResponse> {
+  const { data } = await axios.get(`${BASE_URL}/notes`, {
+    params: { page: params.page, search: params.search, tag: params.tag, perPage: 12 },
+  });
   return data;
-};
+}
 
-export const register = async (email: string, password: string) => {
-  const { data } = await api.post('/api/v1/auth/register', { email, password });
+export async function fetchNoteById(id: string): Promise<Note> {
+  const { data } = await axios.get(`${BASE_URL}/notes/${id}`);
   return data;
-};
+}
 
-export const login = async (email: string, password: string) => {
-  const { data } = await api.post('/api/v1/auth/login', { email, password });
+export async function getMe(): Promise<User> {
+  const { data } = await axios.get(`${BASE_URL}/users/me`);
   return data;
-};
+}
 
-export const logout = async () => {
-  await api.post('/api/v1/auth/logout');
-};
-
-export const checkSession = async () => {
-  const { data } = await api.get('/api/v1/auth/session');
-  return data;
-};
-
-export const getMe = async () => {
-  const { data } = await api.get('/api/v1/users/me');
-  return data;
-};
-
-export const updateMe = async (user: { username: string }) => {
-  const { data } = await api.patch('/api/v1/users/me', user);
-  return data;
-};
+export async function checkSession(): Promise<User | null> {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/auth/session`);
+    return data;
+  } catch {
+    return null;
+  }
+}

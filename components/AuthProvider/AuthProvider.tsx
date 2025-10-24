@@ -1,8 +1,9 @@
-'use client';
+'use client'
 
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { checkSession } from '@/lib/api/clientApi';
+import type { User } from '@/types/user';
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const setUser = useAuthStore((state) => state.setUser);
@@ -12,7 +13,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   useEffect(() => {
     async function validateSession() {
       try {
-        const user = await checkSession();
+        const user: User | null = await checkSession();
         if (user) setUser(user);
         else clearIsAuthenticated();
       } catch {

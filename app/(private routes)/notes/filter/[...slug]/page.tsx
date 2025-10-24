@@ -1,49 +1,21 @@
-import { QueryClient, HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import { fetchNotes, NotesResponse } from '@/lib/api/api';
+import { QueryClient, dehydrate } from '@tanstack/react-query';
 import NotesClient from './Notes.client';
-import type { Metadata } from 'next';
+import { fetchNotes } from '@/lib/api/clientApi';
 
-const SITE_URL = 'https://notehub.goit.global';
-
-interface Props {
-  params: { slug: string[] };
+interface PageProps {
+  params: { slug?: string[] };
 }
 
-export default async function NotesPage({ params }: Props) {
-    const { slug } = params;
-    const tag = slug.length > 0 ? slug[0] : 'All';
+export default async function NotesFilterPage({ params }: PageProps) {
+  const tag = params.slug?.[0] ?? '';
+  const queryClient = new QueryClient();
 
-    const queryClient = new QueryClient();
-
-    await queryClient.prefetchQuery<NotesResponse>({
-        queryKey: ['notes', 1, '', tag],
-        queryFn: () => fetchNotes(1, '', tag),
-    });
+  await queryClient.prefetchQuery({
+    queryKey: ['notes', tag],
+    queryFn: () => fetchNotes({ page: 1, search: '', tag }),
+  });
 
   const dehydratedState = dehydrate(queryClient);
 
-  return (
-    <HydrationBoundary state={dehydratedState}>
-      <NotesClient tag={tag} />
-    </HydrationBoundary>
-  );
+  return <NotesClient tag={tag} dehydratedState={dehydratedState} />;
 }
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const tag = params.slug.length ? params.slug[0] : 'All';
-
-    return {
-      title: `NoteHub - Notes Filtered by ${tag}`,
-      description: `Viewing notes filtered by ${tag} tag`,
-      openGraph: {
-        title: `NoteHub - Notes Filtered by ${tag}`,
-        description: `Viewing notes filtered by ${tag} tag`,
-        url: `${SITE_URL}/notes/filter/${tag}`,
-        images: [
-          {
-            url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'
-          },
-        ],
-      },
-    };
-  }

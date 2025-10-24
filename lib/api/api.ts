@@ -1,8 +1,15 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { Note } from '@/types/note';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+const api: AxiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL + '/api',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export default api;
 
 export interface NotesResponse {
   notes: Note[];
@@ -18,49 +25,26 @@ export interface NewNote {
 export async function fetchNotes(
   page: number = 1,
   search: string = '',
-  tag: string
+  tag: string = ''
 ): Promise<NotesResponse> {
   const params: Record<string, string | number> = { page };
-
   if (search) params.search = search;
   if (tag && tag !== 'All') params.tag = tag;
 
-  const response = await axios.get<NotesResponse>(`${API_URL}/notes`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    params,
-  });
-
+  const response = await api.get<NotesResponse>('/notes', { params });
   return response.data;
 }
 
 export async function fetchNoteById(id: string): Promise<Note> {
-  const response = await axios.get<Note>(`${API_URL}/notes/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await api.get<Note>(`/notes/${id}`);
   return response.data;
 }
 
 export async function createNote(newNote: NewNote): Promise<Note> {
-    try {
-        const response = await axios.post<Note>(`${API_URL}/notes`, newNote, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        console.log('Response:', response.data);
-        return response.data;
-    } catch (error) {
-        console.error('Failed to create note:', error);
-        throw error;
-    }
+  const response = await api.post<Note>('/notes', newNote);
+  return response.data;
 }
 
-export async function deleteNote(id: string): Promise<Note> {
-        const response = await axios.delete<Note>(`${API_URL}/notes/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        return response.data;
+export async function deleteNote(id: string): Promise<void> {
+  await api.delete(`/notes/${id}`);
 }

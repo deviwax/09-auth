@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteNote } from '@/lib/api/api';
+import { deleteNote } from '../../lib/api/api';
 import NoteItem from '../NoteItem/NoteItem';
 import { Note } from '@/types/note';
 import css from './NoteList.module.css';
@@ -12,8 +12,6 @@ interface NoteListProps {
 
 export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
-
-  const notesToRender = notes;
 
   const { mutate, isPending: isDeleting } = useMutation({
     mutationFn: deleteNote,
@@ -28,11 +26,13 @@ export default function NoteList({ notes }: NoteListProps) {
     }
   };
 
-  if (!notesToRender || notesToRender.length === 0) return <p>No notes found.</p>;
+  if (!notes || notes.length === 0) {
+    return <p>No notes found.</p>;
+  }
 
   return (
     <div className={css.list}>
-      {notesToRender.map(note => (
+      {notes.map((note) => (
         <NoteItem
           key={note.id}
           note={note}

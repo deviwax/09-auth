@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNoteStore } from '@/lib/store/noteStore';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createNote } from '../../lib/api/api';
 import css from './NoteForm.module.css';
 
-export default function NoteForm({ onClose, action }: { onClose: () => void; action: (formData: FormData) => Promise<void> }) {
+export default function NoteForm({ onClose }: { onClose: () => void }) {
   const draft = useNoteStore((state) => state.draft);
   const setDraft = useNoteStore((state) => state.setDraft);
   const clearDraft = useNoteStore((state) => state.clearDraft);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState(draft);
 
@@ -17,7 +20,19 @@ export default function NoteForm({ onClose, action }: { onClose: () => void; act
     setFormData(draft);
   }, [draft]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const mutation = useMutation({
+    mutationFn: (newNote: typeof formData) => createNote(newNote),
+    onSuccess: () => {
+      clearDraft();
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      onClose();
+      router.back();
+    },
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
@@ -26,19 +41,13 @@ export default function NoteForm({ onClose, action }: { onClose: () => void; act
     });
   };
 
-  const handleSubmitSuccess = () => {
-    clearDraft();
-    onClose();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate(formData);
   };
 
   return (
-    <form
-      className={css.form}
-      action={async (formData: FormData) => {
-        await action(formData);
-        handleSubmitSuccess();
-      }}
-    >
+    <form className={css.form} onSubmit={handleSubmit}>
       <label>
         Title
         <input
@@ -74,11 +83,21 @@ export default function NoteForm({ onClose, action }: { onClose: () => void; act
       </label>
 
       <div className={css.buttons}>
-        <button type="submit">Save</button>
+        <button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Saving...' : 'Save'}
+        </button>
         <button type="button" onClick={onClose}>
           Cancel
         </button>
       </div>
+
+      {mutation.isError && (
+        <p className={css.error}>
+          Error: {(mutation.error as Error).message}
+        </p>
+      )}
+
+      {mutation.isSuccess && <p>Note created successfully!</p>}
     </form>
   );
 }

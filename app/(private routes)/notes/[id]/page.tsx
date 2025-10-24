@@ -1,26 +1,33 @@
-import { fetchNoteById } from '@/lib/api/api';
-import { notFound } from 'next/navigation';
+import React from 'react';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { QueryClient, dehydrate } from '@tanstack/react-query';
+import NoteClient from '../filter/[...slug]/Notes.client';
+import { fetchNoteById } from '@/lib/api/clientApi';
+import type { Note } from '@/types/note';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-export default async function NoteDetailsPage({ params }: { params: { id: string } }) {
-  const note = await fetchNoteById(params.id);
-
-  if (!note) return notFound();
-
-  return (
-    <main style={{ padding: '2rem' }}>
-      <h1>{note.title}</h1>
-      <p>{note.content}</p>
-      <p>
-        <strong>Tag:</strong> {note.tag}
-      </p>
-    </main>
-  );
+interface PageProps {
+  params: { id: string };
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export default async function NoteDetailsPage({ params }: PageProps) {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ['note', params.id],
+    queryFn: () => fetchNoteById(params.id),
+  });
+
+  const note = queryClient.getQueryData<Note>(['note', params.id]);
+
+  if (!note) {
+    notFound();
+  }
+
+  return <NoteClient dehydratedState={dehydrate(queryClient)} tag={note.tag} />;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const note = await fetchNoteById(params.id);
 
   if (!note) {
@@ -30,7 +37,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       openGraph: {
         title: 'Note not found - NoteHub',
         description: 'The requested note does not exist.',
-        url: `${API_URL}/notes/${params.id}`,
+        url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${params.id}`,
         images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
       },
     };
@@ -42,7 +49,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title: `NoteHub - ${note.title}`,
       description: note.content?.slice(0, 160) || 'Note detail',
-      url: `${API_URL}/notes/${params.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${params.id}`,
       images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
     },
   };

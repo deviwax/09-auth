@@ -1,24 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { fetchNoteById } from '@/lib/api/clientApi';
+import type { Note } from '@/types/note';
 
 export default function NoteDetails() {
   const params = useParams();
-  const id = params?.id;
-  const [note, setNote] = useState<{ id: string; title: string; content: string } | null>(null);
+  const idParam = params?.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
 
-  useEffect(() => {
-    async function fetchNote() {
-      const res = await fetch(`/api/notes/${id}`);
-      const data = await res.json();
-      setNote(data);
-    }
+  const { data: note, isLoading, isError, error } = useQuery<Note, Error>({
+    queryKey: ['note', id],
+    queryFn: () => fetchNoteById(id!),
+    enabled: !!id,
+  });
 
-    if (id) fetchNote();
-  }, [id]);
-
-  if (!note) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error: {error?.message}</p>;
+  if (!note) return <p>Note not found</p>;
 
   return (
     <div>
