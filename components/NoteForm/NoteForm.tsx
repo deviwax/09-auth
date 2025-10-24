@@ -7,7 +7,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNote } from '../../lib/api/api';
 import css from './NoteForm.module.css';
 
-export default function NoteForm({ onClose }: { onClose: () => void }) {
+interface NoteFormProps {
+  onClose: () => void;
+  action?: (formData: FormData) => Promise<void>;
+}
+
+export default function NoteForm({ onClose }: NoteFormProps) {
   const draft = useNoteStore((state) => state.draft);
   const setDraft = useNoteStore((state) => state.setDraft);
   const clearDraft = useNoteStore((state) => state.clearDraft);
@@ -92,9 +97,7 @@ export default function NoteForm({ onClose }: { onClose: () => void }) {
       </div>
 
       {mutation.isError && (
-        <p className={css.error}>
-          Error: {(mutation.error as Error).message}
-        </p>
+        <p className={css.error}>Error: {(mutation.error as Error).message}</p>
       )}
 
       {mutation.isSuccess && <p>Note created successfully!</p>}
