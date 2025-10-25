@@ -10,6 +10,7 @@ import css from './NoteForm.module.css';
 
 interface NoteFormProps {
   onClose: () => void;
+  action?: (formData: FormData) => Promise<void>;
 }
 
 export default function NoteForm({ onClose }: NoteFormProps) {
