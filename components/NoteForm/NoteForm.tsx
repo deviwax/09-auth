@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNoteStore } from '@/lib/store/noteStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createNote } from '../../lib/api/api';
+import { createNote } from '@/lib/api/clientApi';
+import { Note, DraftNote} from '@/types/note';
 import css from './NoteForm.module.css';
 
 interface NoteFormProps {
   onClose: () => void;
-  action?: (formData: FormData) => Promise<void>;
 }
 
 export default function NoteForm({ onClose }: NoteFormProps) {
@@ -19,18 +19,17 @@ export default function NoteForm({ onClose }: NoteFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState(draft);
+  const [formData, setFormData] = useState<DraftNote>(draft);
 
   useEffect(() => {
     setFormData(draft);
   }, [draft]);
 
-  const mutation = useMutation({
-    mutationFn: (newNote: typeof formData) => createNote(newNote),
+  const mutation = useMutation<Note, Error, DraftNote>({
+    mutationFn: (newNote: DraftNote) => createNote(newNote),
     onSuccess: () => {
       clearDraft();
       queryClient.invalidateQueries({ queryKey: ['notes'] });
-      onClose();
       router.back();
     },
   });
@@ -46,7 +45,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate(formData);
   };

@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { QueryClient, dehydrate } from '@tanstack/react-query';
 import NoteClient from '../filter/[...slug]/Notes.client';
-import { fetchNoteById } from '@/lib/api/clientApi';
+import { fetchNoteById } from '@/lib/api/serverApi';
 import type { Note } from '@/types/note';
 
 interface PageProps {
