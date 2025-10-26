@@ -1,18 +1,16 @@
-import React from 'react';
-import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { QueryClient, dehydrate } from '@tanstack/react-query';
-import NoteClient from '../filter/[...slug]/Notes.client';
+import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { fetchNoteById } from '@/lib/api/serverApi';
+import NoteDetailsClient from './NoteDetails.client';
+import type { Metadata } from 'next';
 import type { Note } from '@/types/note';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function NoteDetailsPage({ params }: PageProps) {
-  const { id } = await params;
-
+  const { id } = params;
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
@@ -21,17 +19,19 @@ export default async function NoteDetailsPage({ params }: PageProps) {
   });
 
   const note = queryClient.getQueryData<Note>(['note', id]);
+  if (!note) notFound();
 
-  if (!note) {
-    notFound();
-  }
+  const dehydratedState = dehydrate(queryClient);
 
-  return <NoteClient dehydratedState={dehydrate(queryClient)} tag={note.tag} />;
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <NoteDetailsClient id={id} />
+    </HydrationBoundary>
+  );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-
+  const { id } = params;
   const note = await fetchNoteById(id);
 
   if (!note) {
@@ -41,7 +41,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: 'Note not found - NoteHub',
         description: 'The requested note does not exist.',
-        url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${id}`,
         images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
       },
     };
@@ -49,11 +48,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `NoteHub - ${note.title}`,
-    description: note.content?.slice(0, 160) || 'Note detail',
+    description: note.content?.slice(0, 160) || 'Note details',
     openGraph: {
       title: `NoteHub - ${note.title}`,
-      description: note.content?.slice(0, 160) || 'Note detail',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${id}`,
+      description: note.content?.slice(0, 160) || 'Note details',
       images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
     },
   };
