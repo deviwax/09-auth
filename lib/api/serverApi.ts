@@ -15,43 +15,43 @@ export async function refreshSession(refreshToken: string): Promise<SessionData>
   return response.data as SessionData;
 }
 
-function getCookieHeader(): string {
-  const cookieStore = cookies();
+export async function getCookieHeader(): Promise<string> {
+  const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
-  return allCookies.map(c => `${c.name}=${c.value}`).join('; ');
+  return allCookies.map((c: { name: string; value: string }) => `${c.name}=${c.value}`).join('; ');
 }
 
-export const fetchNotes = async (
+export async function fetchNotes(
   params?: { page?: number; search?: string; tag?: string }
-): Promise<{ notes: Note[]; totalPages: number }> => {
-  const cookieHeader = getCookieHeader();
+): Promise<{ notes: Note[]; totalPages: number }> {
+  const cookieHeader = await getCookieHeader();
   const response = await api.get('/notes', {
     params: { ...params, perPage: 12 },
     headers: { cookie: cookieHeader },
   });
   return response.data;
-};
+}
 
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const cookieHeader = getCookieHeader();
+export async function fetchNoteById(id: string): Promise<Note> {
+  const cookieHeader = await getCookieHeader();
   const response = await api.get(`/notes/${id}`, {
     headers: { cookie: cookieHeader },
   });
   return response.data;
-};
+}
 
-export const getMe = async (): Promise<User> => {
-  const cookieHeader = getCookieHeader();
+export async function getMe(): Promise<User> {
+  const cookieHeader = await getCookieHeader();
   const response = await api.get('/users/me', {
     headers: { cookie: cookieHeader },
   });
   return response.data;
-};
+}
 
-export const checkSession = async (): Promise<AxiosResponse<User>> => {
-  const cookieHeader = getCookieHeader();
+export async function checkSession(): Promise<AxiosResponse<User>> {
+  const cookieHeader = await getCookieHeader();
   const response = await api.get('/auth/session', {
     headers: { cookie: cookieHeader },
   });
   return response;
-};
+}
