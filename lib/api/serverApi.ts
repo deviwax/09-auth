@@ -4,8 +4,6 @@ import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 import type { AxiosResponse } from 'axios';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api';
-
 export interface SessionData {
   accessToken: string;
   refreshToken: string;
@@ -17,17 +15,17 @@ export async function refreshSession(refreshToken: string): Promise<SessionData>
   return response.data as SessionData;
 }
 
-
-async function getCookieHeader(): Promise<string> {
-  const cookieStore = await cookies();
-  return cookieStore.getAll().map((c: { name: string; value: string }) => `${c.name}=${c.value}`).join('; ');
+function getCookieHeader(): string {
+  const cookieStore = cookies();
+  const allCookies = cookieStore.getAll();
+  return allCookies.map(c => `${c.name}=${c.value}`).join('; ');
 }
 
 export const fetchNotes = async (
   params?: { page?: number; search?: string; tag?: string }
 ): Promise<{ notes: Note[]; totalPages: number }> => {
-  const cookieHeader = await getCookieHeader();
-  const response = await api.get(`${baseURL}/notes`, {
+  const cookieHeader = getCookieHeader();
+  const response = await api.get('/notes', {
     params: { ...params, perPage: 12 },
     headers: { cookie: cookieHeader },
   });
@@ -35,24 +33,24 @@ export const fetchNotes = async (
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const cookieHeader = await getCookieHeader();
-  const response = await api.get(`${baseURL}/notes/${id}`, {
+  const cookieHeader = getCookieHeader();
+  const response = await api.get(`/notes/${id}`, {
     headers: { cookie: cookieHeader },
   });
   return response.data;
 };
 
 export const getMe = async (): Promise<User> => {
-  const cookieHeader = await getCookieHeader();
-  const response = await api.get(`${baseURL}/users/me`, {
+  const cookieHeader = getCookieHeader();
+  const response = await api.get('/users/me', {
     headers: { cookie: cookieHeader },
   });
   return response.data;
 };
 
 export const checkSession = async (): Promise<AxiosResponse<User>> => {
-  const cookieHeader = await getCookieHeader();
-  const response = await api.get(`${baseURL}/auth/session`, {
+  const cookieHeader = getCookieHeader();
+  const response = await api.get('/auth/session', {
     headers: { cookie: cookieHeader },
   });
   return response;

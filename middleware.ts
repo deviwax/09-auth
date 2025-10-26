@@ -12,24 +12,6 @@ export async function middleware(req: NextRequest) {
   const refreshToken = cookieStore.get('refreshToken')?.value;
   const pathname = req.nextUrl.pathname;
 
-  const origin = req.headers.get('origin') || '';
-  const res = NextResponse.next();
-
-  if (origin === 'http://localhost:3000') {
-    res.headers.set('Access-Control-Allow-Origin', origin);
-    res.headers.set('Access-Control-Allow-Credentials', 'true');
-    res.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  }
-
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: res.headers,
-    });
-  }
-
-  const isPublic = PUBLIC_PATHS.some(path => pathname.startsWith(path));
   const isAuthPage = AUTH_PAGES.some(path => pathname.startsWith(path));
   const isPrivateRoute = PRIVATE_PATHS.some(path => pathname.startsWith(path));
 
@@ -39,11 +21,12 @@ export async function middleware(req: NextRequest) {
         const refreshed = await refreshSession(refreshToken);
 
         if (refreshed?.accessToken) {
-          res.cookies.set('accessToken', refreshed.accessToken, {
+          const response = NextResponse.redirect(req.url);
+          response.cookies.set('accessToken', refreshed.accessToken, {
             httpOnly: true,
             path: '/',
           });
-          return res;
+          return response;
         }
       } catch (err) {
         console.error('Failed to refresh session:', err);
@@ -56,7 +39,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {

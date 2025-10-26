@@ -7,18 +7,20 @@ import { fetchNoteById } from '@/lib/api/serverApi';
 import type { Note } from '@/types/note';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function NoteDetailsPage({ params }: PageProps) {
+  const { id } = await params;
+
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['note', params.id],
-    queryFn: () => fetchNoteById(params.id),
+    queryKey: ['note', id],
+    queryFn: () => fetchNoteById(id),
   });
 
-  const note = queryClient.getQueryData<Note>(['note', params.id]);
+  const note = queryClient.getQueryData<Note>(['note', id]);
 
   if (!note) {
     notFound();
@@ -28,7 +30,9 @@ export default async function NoteDetailsPage({ params }: PageProps) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const note = await fetchNoteById(params.id);
+  const { id } = await params;
+
+  const note = await fetchNoteById(id);
 
   if (!note) {
     return {
@@ -37,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: 'Note not found - NoteHub',
         description: 'The requested note does not exist.',
-        url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${params.id}`,
+        url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${id}`,
         images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
       },
     };
@@ -49,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `NoteHub - ${note.title}`,
       description: note.content?.slice(0, 160) || 'Note detail',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${params.id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/notes/${id}`,
       images: ['https://ac.goit.global/fullstack/react/notehub-og-meta.jpg'],
     },
   };

@@ -4,6 +4,7 @@ import { ChangeEvent, useState, useEffect } from 'react';
 import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
+  value: string;
   onSearch: (value: string) => void;
 }
 

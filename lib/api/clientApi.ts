@@ -12,8 +12,9 @@ export async function createNote(noteData: Partial<Note>): Promise<Note> {
   return data;
 }
 
-export async function deleteNote(id: string): Promise<void> {
-  await api.delete(`/notes/${id}`);
+export async function deleteNote(id: string): Promise<Note> {
+  const { data } = await api.delete(`/notes/${id}`);
+  return data;
 }
 
 export async function logout(): Promise<void> {

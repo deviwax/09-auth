@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { HydrationBoundary, QueryClient, useQuery, DehydratedState } from '@tanstack/react-query';
 import { fetchNotes, NotesResponse } from '@/lib/api/clientApi';
 import NoteList from '@/components/NoteList/NoteList';
+import SearchBox from '@/components/SearchBox/SearchBox';
+import Pagination from '@/components/Pagination/Pagination';
+import Link from 'next/link';
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -27,29 +30,27 @@ export default function NotesClient({ tag, dehydratedState }: NotesClientProps) 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
-  return (
-    <HydrationBoundary state={dehydratedState}>
-      <NotesList tag={tag} page={page} search={debouncedSearch} />
-    </HydrationBoundary>
-  );
-}
-
-interface NotesListProps {
-  tag: string;
-  page?: number;
-  search?: string;
-}
-
-function NotesList({ tag, page = 1, search = '' }: NotesListProps) {
   const { data, isLoading, error } = useQuery<NotesResponse, Error>({
-  queryKey: ['notes', tag, page, search],
-  queryFn: () => fetchNotes({ page, search, tag }),
-  placeholderData: (oldData) => oldData,
-});
-
+    queryKey: ['notes', tag, page, debouncedSearch],
+    queryFn: () => fetchNotes({ page, tag, search: debouncedSearch }),
+    placeholderData: () => ({ notes: [], totalPages: 0 }),
+  });
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  return <NoteList notes={data?.notes ?? []} />;
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <SearchBox value={search} onSearch={value => { setSearch(value); setPage(1); }} />
+      <Link href="/notes/action/create">Create Note</Link>
+      {data?.notes.length ? (
+        <>
+          <NoteList notes={data.notes} />
+          <Pagination currentPage={page} totalPages={data.totalPages} onPageChange={setPage} />
+        </>
+      ) : (
+        <p>No notes found.</p>
+      )}
+    </HydrationBoundary>
+  );
 }
