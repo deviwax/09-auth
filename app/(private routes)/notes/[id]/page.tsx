@@ -6,11 +6,11 @@ import type { Metadata } from 'next';
 import type { Note } from '@/types/note';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function NoteDetailsPage({ params }: PageProps) {
-  const { id } = params;
+  const { id } = await params;
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
@@ -31,7 +31,7 @@ export default async function NoteDetailsPage({ params }: PageProps) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
   const note = await fetchNoteById(id);
 
   if (!note) {
