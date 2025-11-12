@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: true,
+
+    async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://notehub-api.goit.study/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
