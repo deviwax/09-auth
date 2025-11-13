@@ -42,7 +42,7 @@ export async function fetchNoteById(id: string): Promise<Note> {
 
 export async function getMe(): Promise<User> {
   const cookieHeader = await getCookieHeader();
-  const response = await api.get('/users/me', {
+  const response =  await api.get('https://notehub-api.goit.study/users/me', {
     headers: { cookie: cookieHeader },
   });
   return response.data;

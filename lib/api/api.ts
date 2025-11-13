@@ -9,7 +9,10 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-export default api;
+export async function register(name: string, email: string, password: string) {
+  const { data } = await api.post('/auth/register', { name, email, password });
+  return data;
+}
 
 export interface NotesResponse {
   notes: Note[];

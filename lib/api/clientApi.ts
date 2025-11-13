@@ -1,5 +1,5 @@
 import type { Note } from '@/types/note';
-import type { User } from '@/types/user';
+import type { User, RegisterRequest } from '@/types/user';
 import { api } from './axios';
 
 export interface NotesResponse {
@@ -31,8 +31,8 @@ export async function login(email: string, password: string): Promise<User> {
   return data;
 }
 
-export async function register(name: string, email: string, password: string): Promise<User> {
-  const { data } = await api.post('/auth/register', { name, email, password });
+export async function register({ email, password }: RegisterRequest): Promise<User> {
+  const { data } = await api.post('/auth/register', { email, password });
   return data;
 }
 
