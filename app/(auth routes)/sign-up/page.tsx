@@ -10,6 +10,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const setUser = useAuthStore(state => state.setUser);
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +18,7 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const user = await register(email, password);
+      const user = await register(name, email, password);
       setUser(user);
       router.push('/profile');
     } catch {
@@ -30,6 +31,19 @@ export default function SignUpPage() {
       <h1 className={css.formTitle}>Sign up</h1>
       <form className={css.form} onSubmit={handleSubmit}>
         <div className={css.formGroup}>
+                  <div className={css.formGroup}>
+          <label htmlFor="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            name="name"
+            className={css.input}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+          />
+          </div>
+          
           <label htmlFor="email">Email</label>
           <input
             id="email"
