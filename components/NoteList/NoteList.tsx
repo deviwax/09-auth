@@ -33,13 +33,13 @@ export default function NoteList({ notes }: NoteListProps) {
   return (
     <div className={css.list}>
       {notes.map((note) => (
-        <div key={note.id} className={css.note}>
+        <div key={note.id} className={css.listItem}>
           <Link href={`/notes/${note.id}`}>
-            <h3>{note.title}</h3>
+            <h3 className={css.title}>{note.title}</h3>
           </Link>
-          <p>{note.content}</p>
-          <small>{note.tag}</small>
-          <button onClick={() => handleDelete(note.id)} disabled={isDeleting}>
+          <p className={css.content}>{note.content}</p>
+          <small className={css.tag}>{note.tag}</small>
+          <button className={css.button} onClick={() => handleDelete(note.id)} disabled={isDeleting}>
             {isDeleting ? 'Deleting...' : 'Delete'}
           </button>
         </div>

@@ -53,9 +53,9 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
-      <label>
+      <label className={css.formGroup}>
         Title
-        <input
+        <input className={css.input}
           type="text"
           name="title"
           value={formData.title}
@@ -66,9 +66,9 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         />
       </label>
 
-      <label>
+      <label className={css.formGroup}>
         Content
-        <textarea
+        <textarea className={css.textarea}
           name="content"
           value={formData.content}
           onChange={handleChange}
@@ -76,9 +76,9 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         />
       </label>
 
-      <label>
+      <label className={css.formGroup}>
         Tag
-        <select name="tag" value={formData.tag} onChange={handleChange} required>
+        <select className={css.select} name="tag" value={formData.tag} onChange={handleChange} required>
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
@@ -87,11 +87,11 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         </select>
       </label>
 
-      <div className={css.buttons}>
-        <button type="submit" disabled={mutation.isPending}>
+      <div className={css.actions}>
+        <button className={css.submitButton} type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? 'Saving...' : 'Save'}
         </button>
-        <button type="button" onClick={onClose}>
+        <button className={css.cancelButton} type="button" onClick={onClose}>
           Cancel
         </button>
       </div>

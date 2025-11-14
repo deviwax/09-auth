@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { api } from '@/lib/api/axios';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
-import type { AxiosResponse } from 'axios';
+import { nextServer } from './api';
 
 export interface SessionData {
   accessToken: string;
@@ -40,18 +40,22 @@ export async function fetchNoteById(id: string): Promise<Note> {
   return response.data;
 }
 
-export async function getMe(): Promise<User> {
-  const cookieHeader = await getCookieHeader();
-  const response =  await api.get('https://notehub-api.goit.study/users/me', {
-    headers: { cookie: cookieHeader },
-  });
-  return response.data;
-}
-
-export async function checkSession(): Promise<AxiosResponse<User>> {
-  const cookieHeader = await getCookieHeader();
-  const response = await api.get('/auth/session', {
-    headers: { cookie: cookieHeader },
+export async function checkServerSession() {
+    const cookieStore = await cookies();
+  const response = await nextServer.get('/auth/session', {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
   });
   return response;
 }
+
+export async function getServerMe(): Promise<User> {
+  const cookieStore = await cookies();
+  const { data } = await nextServer.get('/users/me', {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+  return data;
+};

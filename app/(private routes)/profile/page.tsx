@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getMe } from '@/lib/api/serverApi';
+import { getServerMe } from '@/lib/api/serverApi';
 import css from './ProfilePage.module.css';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const user = await getMe();
+  const user = await getServerMe();
 
   if (!user) {
     return <p>User not found</p>;
@@ -36,8 +36,8 @@ export default async function ProfilePage() {
           />
         </div>
         <div className={css.profileInfo}>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
+          <h2>Username: {user.username}</h2>
+          <h2>Email: {user.email}</h2>
         </div>
       </div>
     </main>

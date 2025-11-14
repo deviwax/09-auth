@@ -3,47 +3,71 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register } from '@/lib/api/clientApi';
-import type { RegisterRequest } from '@/types/user';
+import { RegisterRequest } from '@/types/user';
 import { AxiosError } from 'axios';
-import type { User } from '@/types/user';
+import css from './SignUpPage.module.css';
 
-export default function SignUp() {
+export type ApiError = AxiosError;
+
+const SignUp = () => {
   const router = useRouter();
   const [error, setError] = useState('');
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  const formData = new FormData(event.currentTarget);
-  const formValues: RegisterRequest = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  };
-
+  const handleSubmit = async (formData: FormData) => {
   try {
-    const user: User = await register(formValues);
-    console.log('Registered user:', user);
-    router.push('/profile');
-  } catch (error: unknown) {
-    let message = 'Registration failed';
-    if (error instanceof AxiosError) {
-      message = error.response?.data?.message || error.message;
+    const formValues = Object.fromEntries(formData) as unknown as RegisterRequest;
+
+    const res = await register(formValues);
+
+    if (res) {
+      router.push('/profile');
+    } else {
+      setError('Invalid email or password');
     }
-    setError(message);
+  } catch (error) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'response' in error &&
+    error.response &&
+    typeof error.response === 'object' &&
+    'data' in error.response &&
+    error.response.data &&
+    typeof error.response.data === 'object' &&
+    'error' in error.response.data
+  ) {
+    setError((error.response.data as { error: string }).error);
+  } else if (error instanceof Error) {
+    setError(error.message);
+  } else {
+    setError('Oops... some error');
   }
+}
 };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Email
-        <input type="email" name="email" required />
-      </label>
-      <label>
-        Password
-        <input type="password" name="password" required minLength={6} />
-      </label>
-      <button type="submit">Register</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </form>
+    <main className={css.mainContent}>
+      <h1 className={css.formTitle}>Sign up</h1>
+      <form className={css.form} action={handleSubmit}>
+        <label className={css.formGroup}>
+          Username
+          <input className={css.input} type="text" name="userName" required />
+        </label>
+        <label className={css.formGroup}>
+          Email
+          <input className={css.input} type="email" name="email" required />
+        </label>
+        <label className={css.formGroup}>
+          Password
+          <input className={css.input} type="password" name="password" required />
+        </label>
+        <div className={css.actions}>
+        <button className={css.submitButton} type="submit">Register</button>
+        </div>
+      </form>
+      {error && <p className={css.error}>{error}</p>}
+    </main>
   );
-}
+};
+
+export default SignUp;

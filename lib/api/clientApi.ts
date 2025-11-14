@@ -7,6 +7,11 @@ export interface NotesResponse {
   totalPages: number;
 }
 
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
 export async function createNote(noteData: Partial<Note>): Promise<Note> {
   const { data } = await api.post('/notes', noteData);
   return data;
