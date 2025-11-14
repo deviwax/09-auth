@@ -21,9 +21,9 @@ export default function EditProfilePage() {
     async function loadUser() {
       try {
         const user = await getMe();
-        setUsername(user.username);
+        setUsername(user.username ?? '');
         setEmail(user.email);
-        setAvatar(user.avatar);
+        setAvatar(user.avatar ?? '');
       } catch {
         setError('Failed to load user data');
       } finally {
