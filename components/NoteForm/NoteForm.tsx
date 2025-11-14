@@ -41,10 +41,22 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     const { name, value } = e.target;
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
-      setDraft(updated);
       return updated;
     });
   };
+
+  useEffect(() => {
+  setFormData((prev) => {
+    if (
+      prev.title === draft.title &&
+      prev.content === draft.content &&
+      prev.tag === draft.tag
+    ) {
+      return prev;
+    }
+    return draft;
+  });
+}, [draft]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
