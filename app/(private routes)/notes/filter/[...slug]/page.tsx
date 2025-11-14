@@ -7,7 +7,8 @@ interface PageProps {
 }
 
 export default async function NotesFilterPage({ params }: PageProps) {
-  const tag = params.slug?.[0] ?? '';
+  const awaitedParams = await params; 
+  const tag = awaitedParams.slug?.[0] ?? '';
   const queryClient = new QueryClient();
 
    await queryClient.prefetchQuery({
