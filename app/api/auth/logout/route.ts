@@ -1,23 +1,27 @@
 import { NextResponse } from 'next/server';
+import { api } from '../../api';
 
 export async function POST() {
-  const res = NextResponse.json({ message: 'Logged out' });
+  try {
+    const apiRes = await api.post('/auth/logout');
 
-  res.cookies.set('accessToken', '', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    path: '/',
-    expires: new Date(0),
-  });
+    const res = NextResponse.json(apiRes.data);
 
-  res.cookies.set('refreshToken', '', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    path: '/',
-    expires: new Date(0),
-  });
+    res.cookies.set('accessToken', '', {
+      maxAge: 0,
+      path: '/',
+    });
 
-  return res;
+    res.cookies.set('refreshToken', '', {
+      maxAge: 0,
+      path: '/',
+    });
+
+    return res;
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Logout failed' },
+      { status: 500 }
+    );
+  }
 }
