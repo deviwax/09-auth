@@ -10,6 +10,29 @@ export interface SessionData {
   userId: string;
 }
 
+export async function checkServerSession(cookieHeader: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  const url = new URL('/auth/session', baseUrl).toString();
+
+  const response = await fetch(url, {
+    headers: {
+      Cookie: cookieHeader,
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch session: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return {
+    data,
+    headers: response.headers,
+  };
+}
+
 export async function refreshSession(refreshToken: string): Promise<SessionData> {
   const response = await api.post('/auth/refresh', { refreshToken }, { withCredentials: true });
   return response.data as SessionData;
@@ -40,7 +63,7 @@ export async function fetchNoteById(id: string): Promise<Note> {
   return response.data;
 }
 
-export async function checkServerSession() {
+/*export async function checkServerSession() {
     const cookieStore = await cookies();
   const response = await nextServer.get('/auth/session', {
     headers: {
@@ -48,7 +71,7 @@ export async function checkServerSession() {
     },
   });
   return response;
-}
+}*/
 
 export async function getServerMe(): Promise<User> {
   const cookieStore = await cookies();

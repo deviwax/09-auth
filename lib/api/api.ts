@@ -1,9 +1,11 @@
 import axios, { AxiosInstance } from 'axios';
 import { Note } from '@/types/note';
+import { User } from '@/types/user';
 
 export const nextServer = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'https://notehub-api.goit.study/api',
   withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
 });
 
 const api: AxiosInstance = axios.create({
@@ -56,3 +58,21 @@ export async function createNote(newNote: NewNote): Promise<Note> {
 export async function deleteNote(id: string): Promise<void> {
   await api.delete(`/notes/${id}`);
 }
+
+export const logout = async (): Promise<void> => {
+  await nextServer.post('/auth/logout')
+};
+
+type CheckSessionRequest = {
+  success: boolean;
+};
+
+export const checkSession = async () => {
+  const res = await nextServer.get<CheckSessionRequest>('/auth/session');
+  return res.data.success;
+};
+
+export const getMe = async () => {
+  const { data } = await nextServer.get<User>('/auth/me');
+  return data;
+};

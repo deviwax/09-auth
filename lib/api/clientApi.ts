@@ -33,12 +33,12 @@ export async function updateMe(userData: { username: string }): Promise<User> {
 }
 
 export async function login(email: string, password: string): Promise<User> {
-  const { data } = await api.post('/auth/login', { email, password });
+  const { data } = await axios.post('/api/auth/login', { email, password });
   return data;
 }
 
 export async function register({ email, password }: RegisterRequest): Promise<User> {
-  const { data } = await api.post('/auth/register', { email, password });
+  const { data } = await axios.post('/api/auth/register', { email, password });
   return data;
 }
 

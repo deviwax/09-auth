@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { parse } from 'cookie';
 import { checkServerSession } from './lib/api/serverApi';
@@ -6,19 +6,20 @@ import { checkServerSession } from './lib/api/serverApi';
 const privateRoutes = ['/profile'];
 const publicRoutes = ['/sign-in', '/sign-up'];
 
-export async function middleware(req: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
   const refreshToken = cookieStore.get('refreshToken')?.value;
-  const { pathname } = req.nextUrl;
 
-    const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-    const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
+  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
   if (!accessToken) {
     if (refreshToken) {
-      const data = await checkServerSession();
-      const setCookie = data.headers['set-cookie'];
+      const cookieHeader = cookieStore.toString();
+      const data = await checkServerSession(cookieHeader);
+      const setCookie = data.headers.get('set-cookie');
 
       if (setCookie) {
         const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
@@ -32,9 +33,9 @@ export async function middleware(req: NextRequest) {
           if (parsed.accessToken) cookieStore.set('accessToken', parsed.accessToken, options);
           if (parsed.refreshToken) cookieStore.set('refreshToken', parsed.refreshToken, options);
         }
-      
+
         if (isPublicRoute) {
-          return NextResponse.redirect(new URL('/', req.url), {
+          return NextResponse.redirect(new URL('/', request.url), {
             headers: {
               Cookie: cookieStore.toString(),
             },
@@ -50,18 +51,18 @@ export async function middleware(req: NextRequest) {
         }
       }
     }
-   
+
     if (isPublicRoute) {
       return NextResponse.next();
     }
 
     if (isPrivateRoute) {
-      return NextResponse.redirect(new URL('/sign-in', req.url));
+      return NextResponse.redirect(new URL('/sign-in', request.url));
     }
   }
 
   if (isPublicRoute) {
-    return NextResponse.redirect(new URL('/', req.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   if (isPrivateRoute) {

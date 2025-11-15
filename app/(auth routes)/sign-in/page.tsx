@@ -1,23 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import { login } from '@/lib/api/clientApi';
+import { login, LoginRequest } from '@/lib/api/clientApi';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
+import { useAuthStore } from '@/lib/store/authStore';
 import css from './SignInPage.module.css';
 
 export type ApiError = AxiosError;
 
 export default function SignInPage() {
   const router = useRouter();
-    const [error, setError] = useState('');
-
+  const [error, setError] = useState('');
+  const setUser = useAuthStore((state) => state.setUser)
+  
   const handleSubmit = async (formData: FormData) => {
     try {
-      const formValues = Object.fromEntries(formData) as Record<string, string>;
+      const formValues = Object.fromEntries(formData) as LoginRequest;
       const res = await login(formValues.email, formValues.password);
-
       if (res) {
+	      setUser(res)
         router.push('/profile');
       } else {
         setError('Invalid email or password');
@@ -44,7 +46,11 @@ export default function SignInPage() {
   };
   return (
     <main className={css.mainContent}>
-    <form className={css.form} action={handleSubmit}>
+      <form className={css.form} onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        handleSubmit(formData);
+      }}>
       <h1 className={css.formTitle}>Sign in</h1>
       <label className={css.formGroup}>
         Email
