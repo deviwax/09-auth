@@ -1,17 +1,23 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { api } from '../../api';
 
 export async function POST() {
-  const cookieStore = await cookies();
-  await api.post('auth/logout', {
-    headers: {
-      Cookie: cookieStore.toString(),
-    },
+  const res = NextResponse.json({ message: 'Logged out' });
+
+  res.cookies.set('accessToken', '', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    expires: new Date(0),
   });
 
-  cookieStore.delete('accessToken');
-  cookieStore.delete('refreshToken');
+  res.cookies.set('refreshToken', '', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    expires: new Date(0),
+  });
 
-  return NextResponse.json({ message: 'Logged out successfully' });
+  return res;
 }

@@ -24,7 +24,7 @@ export async function deleteNote(id: string): Promise<Note> {
 }
 
 export async function logout(): Promise<void> {
-  await api.post('/auth/logout');
+  await api.post('/api/auth/logout');
 }
 
 export async function updateMe(userData: { username: string }): Promise<User> {
