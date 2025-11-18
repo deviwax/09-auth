@@ -39,17 +39,23 @@ export async function fetchNotes(
 }
 
 export async function fetchNoteById(id: string): Promise<Note> {
-  const { data } = await nextServer.get(`/notes/${id}`);
+  const { data } = await nextServer.get(`/notes/${id}`, {
+    withCredentials: true
+  });
   return data;
 }
 
 export const getMe = async () => {
-  const { data } = await nextServer.get<User>('/users/me');
+  const { data } = await nextServer.get<User>('/users/me', {
+    withCredentials: true
+  });
   return data;
 };
 
 export const updateMe = async (payload: UpdateUserRequest) => {
-  const res = await nextServer.patch<User>('/users/me', payload);
+  const res = await nextServer.patch<User>('/users/me', payload, {
+    withCredentials: true
+  });
   return res.data;
 };
 
@@ -58,20 +64,28 @@ type CheckSessionRequest = {
 };
 
 export const checkSession = async (): Promise<boolean> => {
-  const res = await nextServer.get<CheckSessionRequest>('/auth/session');
+  const res = await nextServer.get<CheckSessionRequest>('/auth/session', {
+    withCredentials: true
+  });
   return res.data.success;
 };
 
 export const login = async (data: LoginRequest): Promise<User> => {
-  const res = await nextServer.post<User>('/auth/login', data);
+  const res = await nextServer.post<User>('/auth/login', data, {
+    withCredentials: true
+  });
   return res.data;
 };
 
 export const logout = async (): Promise<void> => {
-  await nextServer.post('/auth/logout')
+  await nextServer.post('/auth/logout', {
+    withCredentials: true
+  })
 };
 
 export const register = async (data: RegisterRequest): Promise<User> => {
-  const res = await nextServer.post<User>('/auth/register', data);
+  const res = await nextServer.post<User>('/auth/register', data, {
+    withCredentials: true
+  });
   return res.data;
 };
