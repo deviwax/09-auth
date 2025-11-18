@@ -20,7 +20,7 @@ export default function SignInPage() {
       const res = await login(formValues);
       if (res) {
 	      setUser(res)
-        router.push('/profile');
+        await router.push('/profile');
       } else {
         setError('Invalid email or password');
       }
