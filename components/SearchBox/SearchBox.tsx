@@ -1,8 +1,10 @@
 'use client';
 
 import { ChangeEvent, useState, useEffect } from 'react';
+import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
+  value: string;
   onSearch: (value: string) => void;
 }
 
@@ -24,7 +26,8 @@ export default function SearchBox({ onSearch }: SearchBoxProps) {
     <input
       type="text"
       value={value}
-      onChange={handleChange}
+          onChange={handleChange}
+          className={css.input}
       placeholder="Search notes..."
     />
   );

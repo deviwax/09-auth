@@ -17,8 +17,8 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
       pageCount={totalPages}
       forcePage={currentPage - 1}
       onPageChange={(selectedItem) => onPageChange(selectedItem.selected + 1)}
-      previousLabel="Prev"
-      nextLabel="Next"
+      previousLabel="←"
+      nextLabel="→"
       containerClassName={styles.pagination}
       activeClassName={styles.active}
       pageClassName={styles.page}

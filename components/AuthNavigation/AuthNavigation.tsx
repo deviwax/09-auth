@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
-import { logout } from '@/lib/api';
+import { logout } from '@/lib/api/clientApi';
 import css from './AuthNavigation.module.css';
 
 const AuthNavigation = () => {
@@ -19,23 +19,23 @@ const AuthNavigation = () => {
     router.push('/sign-in');
   };
 
-    return isAuthenticated ? (
-        <ul>
-      <li className={css.navigationItem}>
+  return isAuthenticated ? (
+    <ul>
+     <li className={css.navigationItem}>
   <Link href="/profile" prefetch={false} className={css.navigationLink}>
     Profile
   </Link>
 </li>
 
 <li className={css.navigationItem}>
-  <p className={css.userEmail}>User email</p>
-  <button className={css.logoutButton}>
+  <p className={css.userEmail}>{user?.email ?? 'User email'}</p>
+  <button className={css.logoutButton} onClick={handleLogout}>
     Logout
   </button>
 </li>
-</ul>        
-    ) : (
-<ul>
+</ul>
+  ) : (
+      <ul>
 <li className={css.navigationItem}>
   <Link href="/sign-in" prefetch={false} className={css.navigationLink}>
     Login
@@ -48,7 +48,7 @@ const AuthNavigation = () => {
   </Link>
 </li>
 </ul>
-  )
+  );
 };
 
 export default AuthNavigation;

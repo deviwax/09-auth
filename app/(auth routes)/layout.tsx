@@ -1,21 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './sign-in/SignInPage.module.css';
 
-type Props = {
-  children: React.ReactNode;
+type AuthLayoutProps = {
+  children: ReactNode;
 };
 
-export default function PublicLayout({ children }: Props) {
-  const [loading, setLoading] = useState(true);
-
+export default function AuthLayout({ children }: AuthLayoutProps) {
   const router = useRouter();
 
   useEffect(() => {
     router.refresh();
-    setLoading(false);
   }, [router]);
 
-  return <>{loading ? <div>Loading...</div> : children}</>;
+  return (
+    <main className={styles.main}>
+      {children}
+    </main>
+  );
 }

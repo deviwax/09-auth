@@ -1,21 +1,20 @@
-import css from './Header.module.css';
+'use client';
+
 import Link from 'next/link';
-import CategoriesMenu from '../CategoriesMenu/CategoriesMenu';
+import css from './Header.module.css';
+import TagsMenu from '../TagsMenu/TagsMenu';
 import AuthNavigation from '../AuthNavigation/AuthNavigation';
 
-const Header = () => {
+export default function Header() {
   return (
     <header className={css.header}>
       <Link className={css.headerLink} href="/" aria-label="Home">NoteHub</Link>
       <nav aria-label="Main Navigation" className={css.navigationItem}>
         <ul className={css.navigation}>
-          <li className={css.navigationLink}><CategoriesMenu />
+          <li className={css.navigationItem}><TagsMenu />
           </li>
           <li className={css.navigationItem}>
             <Link className={css.navigationLink} href="/profile">Profile</Link>
-          </li>
-          <li className={css.navigationItem}>
-            <Link className={css.navigationLink} href="/about">About</Link>
           </li>
           <li className={css.navigationLink}>
             <AuthNavigation />
@@ -24,6 +23,4 @@ const Header = () => {
       </nav>
     </header>
   );
-};
-
-export default Header;
+}

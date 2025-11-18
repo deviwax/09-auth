@@ -6,3 +6,9 @@ export interface Note {
     tag: string;
     updatedAt: string;
 }
+
+export interface DraftNote {
+  title: string;
+  content: string;
+  tag: string;
+}

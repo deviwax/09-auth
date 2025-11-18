@@ -17,7 +17,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
         onClose();
       }
     };
-
+      
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
@@ -28,7 +28,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       document.body.style.overflow = 'auto';
     };
   }, [isOpen, onClose]);
-
+    
   if (!isOpen) return null;
 
   return createPortal(

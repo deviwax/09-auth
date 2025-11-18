@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { login, LoginRequest } from '@/lib/api/clientApi';
 import { useRouter } from 'next/navigation';
-import { login, LoginRequest } from '@/lib/api';
+import { AxiosError } from 'axios';
 import { useAuthStore } from '@/lib/store/authStore';
-import { ApiError } from '@/app/api/api'
 import css from './SignInPage.module.css';
 
+export type ApiError = AxiosError;
 
-const SignIn = () => {
+export default function SignInPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const setUser = useAuthStore((state) => state.setUser)
@@ -25,39 +25,46 @@ const SignIn = () => {
         setError('Invalid email or password');
       }
     } catch (error) {
-      setError(
-        (error as ApiError).response?.data?.error ??
-          (error as ApiError).message ??
-          'Oops... some error'
-      )
-    }
+  if (
+    error &&
+    typeof error === 'object' &&
+    'response' in error &&
+    error.response &&
+    typeof error.response === 'object' &&
+    'data' in error.response &&
+    error.response.data &&
+    typeof error.response.data === 'object' &&
+    'error' in error.response.data
+  ) {
+    setError((error.response.data as { error: string }).error);
+  } else if (error instanceof Error) {
+    setError(error.message);
+  } else {
+    setError('Oops... some error');
+  }
+}
   };
-
   return (
     <main className={css.mainContent}>
- <form className={css.form}>
-    <h1 className={css.formTitle}>Sign in</h1>
-
-    <div className={css.formGroup}>
-      <label htmlFor="email">Email</label>
-      <input id="email" type="email" name="email" className={css.input} required />
-    </div>
-
-    <div className={css.formGroup}>
-      <label htmlFor="password">Password</label>
-      <input id="password" type="password" name="password" className={css.input} required />
-    </div>
-
-    <div className={css.actions}>
-      <button type="submit" className={css.submitButton}>
-        Log in
-      </button>
-    </div>
-
-    <p className={css.error}>{error}</p>
-  </form>
-</main>
+      <form className={css.form} onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        handleSubmit(formData);
+      }}>
+      <h1 className={css.formTitle}>Sign in</h1>
+      <label className={css.formGroup}>
+        Email
+        <input className={css.input} type="email" name="email" required />
+      </label>
+      <label className={css.formGroup}>
+        Password
+        <input className={css.input} type="password" name="password" required />
+        </label>
+        <div className={css.actions}>
+        <button className={css.submitButton} type="submit">Log in</button>
+        </div>
+      {error && <p>{error}</p>}
+    </form>
+    </main>
   );
 };
-
-export default SignIn;
