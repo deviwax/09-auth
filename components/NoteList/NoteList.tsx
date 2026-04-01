@@ -15,7 +15,7 @@ export default function NoteList({ notes }: NoteListProps) {
 
   const notesToRender = notes;
 
-  const { mutate, isPending: isDeleting } = useMutation({
+  const mutation = useMutation({
     mutationFn: deleteNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
@@ -24,20 +24,22 @@ export default function NoteList({ notes }: NoteListProps) {
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this note?')) {
-      mutate(id);
+      mutation.mutate(id);
     }
   };
 
-  if (!notesToRender || notesToRender.length === 0) return <p>No notes found.</p>;
+  if (!notesToRender || notesToRender.length === 0) {
+    return <p>No notes found.</p>;
+  }
 
   return (
     <div className={css.list}>
-      {notesToRender.map(note => (
+      {notesToRender.map((note) => (
         <NoteItem
           key={note.id}
           note={note}
           onDelete={handleDelete}
-          isDeleting={isDeleting}
+          isDeleting={mutation.isPending}
         />
       ))}
     </div>

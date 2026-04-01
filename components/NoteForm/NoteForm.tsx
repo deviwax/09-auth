@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useNoteStore } from '@/lib/store/noteStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNote } from '@/lib/api/clientApi';
-import { Note, DraftNote} from '@/types/note';
+import { DraftNote } from '@/types/note';
+import { useRouter } from 'next/navigation';
 import css from './NoteForm.module.css';
 
 export default function NoteForm() {
@@ -15,13 +14,7 @@ export default function NoteForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState<DraftNote>(draft);
-
-  useEffect(() => {
-    setFormData(draft);
-  }, [draft]);
-
-  const mutation = useMutation<Note, Error, DraftNote>({
+  const mutation = useMutation({
     mutationFn: (newNote: DraftNote) => createNote(newNote),
     onSuccess: () => {
       clearDraft();
@@ -34,39 +27,23 @@ export default function NoteForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => {
-      const updated = { ...prev, [name]: value };
-      setDraft(updated);
-      return updated;
-    });
+    setDraft({ ...draft, [name]: value });
   };
-
-  useEffect(() => {
-  setFormData((prev) => {
-    if (
-      prev.title === draft.title &&
-      prev.content === draft.content &&
-      prev.tag === draft.tag
-    ) {
-      return prev;
-    }
-    return draft;
-  });
-}, [draft]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(formData);
+    mutation.mutate(draft);
   };
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
       <label className={css.formGroup}>
         Title
-        <input className={css.input}
+        <input 
+          className={css.input}
           type="text"
           name="title"
-          value={formData.title}
+          value={draft.title}
           onChange={handleChange}
           required
           minLength={3}
@@ -76,9 +53,10 @@ export default function NoteForm() {
 
       <label className={css.formGroup}>
         Content
-        <textarea className={css.textarea}
+        <textarea 
+          className={css.textarea}
           name="content"
-          value={formData.content}
+          value={draft.content}
           onChange={handleChange}
           maxLength={500}
         />
@@ -86,7 +64,13 @@ export default function NoteForm() {
 
       <label className={css.formGroup}>
         Tag
-        <select className={css.select} name="tag" value={formData.tag} onChange={handleChange} required>
+        <select 
+          className={css.select} 
+          name="tag" 
+          value={draft.tag} 
+          onChange={handleChange} 
+          required
+        >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
@@ -96,10 +80,18 @@ export default function NoteForm() {
       </label>
 
       <div className={css.actions}>
-        <button className={css.submitButton} type="submit" disabled={mutation.isPending}>
+        <button 
+          className={css.submitButton} 
+          type="submit" 
+          disabled={mutation.isPending}
+        >
           {mutation.isPending ? 'Saving...' : 'Save'}
         </button>
-        <button className={css.cancelButton} type="button" onClick={() => router.back()}>
+        <button 
+          className={css.cancelButton} 
+          type="button" 
+          onClick={() => router.back()}
+        >
           Cancel
         </button>
       </div>
@@ -107,8 +99,6 @@ export default function NoteForm() {
       {mutation.isError && (
         <p className={css.error}>Error: {(mutation.error as Error).message}</p>
       )}
-
-      {mutation.isSuccess && <p>Note created successfully!</p>}
     </form>
   );
 }
