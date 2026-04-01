@@ -28,6 +28,16 @@ export async function deleteNote(id: string): Promise<Note> {
   return data;
 }
 
+export async function fetchNotes(
+  params?: { page?: number; search?: string; tag?: string }
+): Promise<{ notes: Note[]; totalPages: number }> {
+  const response = await nextServer.get('/notes', {
+    params: { ...params, perPage: 12 },
+    withCredentials: true 
+  });
+  return response.data;
+}
+
 export async function fetchNoteById(id: string): Promise<Note> {
   const { data } = await nextServer.get(`/notes/${id}`, {
     withCredentials: true
