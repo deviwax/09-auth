@@ -58,3 +58,8 @@ export async function getServerMe(): Promise<User> {
   });
   return data;
 }
+
+export interface NotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
